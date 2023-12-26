@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_application/main.dart';
 import 'package:flutter_application/userprofile.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddProduct extends StatelessWidget {
   const AddProduct({super.key});
@@ -26,11 +29,12 @@ class _AddProdFormState extends State<AddProdForm> {
   TextEditingController descriptionController = TextEditingController();
 
   final database = FirebaseDatabase.instance.ref();
+  File? selectedImage = File('');
 
   @override
   Widget build(BuildContext context) {
     // final productRef = database.child('products');
-    validate1(String? val) {
+    validate(String? val) {
       if (val == null || val.isEmpty) {
         return 'Enter a valide value !!';
       }
@@ -62,6 +66,18 @@ class _AddProdFormState extends State<AddProdForm> {
               ),
               children: [
                 const SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  height: 200,
+                  width: 200,
+                  color: Colors.red,
+                  child: Image.file(
+                    selectedImage!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(
                   height: 10,
                 ),
                 const Text(
@@ -73,7 +89,7 @@ class _AddProdFormState extends State<AddProdForm> {
                   decoration: const InputDecoration(
                     labelText: 'Name',
                   ),
-                  validator: validate1,
+                  validator: validate,
                   onSaved: (newValue) {
                     nameController.text = newValue.toString();
                   },
@@ -90,8 +106,9 @@ class _AddProdFormState extends State<AddProdForm> {
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                     labelText: 'Price',
+                    hintText: 'product price in \$'
                   ),
-                  validator: validate1,
+                  validator: validate,
                   onSaved: (newValue) {
                     priceController.text = newValue.toString();
                   },
@@ -108,13 +125,26 @@ class _AddProdFormState extends State<AddProdForm> {
                   decoration: const InputDecoration(
                     labelText: 'Description',
                   ),
-                  validator: validate1,
+                  validator: validate,
                   onSaved: (newValue) {
                     descriptionController.text = newValue.toString();
                   },
                 ),
                 const SizedBox(
                   height: 20,
+                ),
+                RawMaterialButton(
+                  fillColor: Colors.red,
+                  onPressed: () {
+                    pickIwmage();
+                  },
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Add Product Photo'),
+                      Icon(Icons.add_a_photo),
+                    ],
+                  ),
                 ),
                 ElevatedButton(
                   style: ButtonStyle(
@@ -128,6 +158,7 @@ class _AddProdFormState extends State<AddProdForm> {
                           'productName': nameController.text,
                           'productPrice': priceController.text,
                           'description': descriptionController.text,
+                          // 'image': selectedImage!.parent
                         });
                       } catch (e) {
                         print('Error $e');
@@ -145,13 +176,6 @@ class _AddProdFormState extends State<AddProdForm> {
                 const SizedBox(
                   height: 10,
                 ),
-                RawMaterialButton(
-                  fillColor: Colors.red,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
               ],
             ),
           ),
@@ -160,4 +184,12 @@ class _AddProdFormState extends State<AddProdForm> {
       ),
     );
   }
+
+  // get image from gellary method
+  Future pickIwmage() async {
+  final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+  setState(() {
+    selectedImage = File(image!.path);
+  });
+}
 }

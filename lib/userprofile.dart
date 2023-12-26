@@ -39,7 +39,12 @@ class UserProfile extends StatelessWidget {
           },
           child: const Icon(Icons.add),
         ),
-        bottomNavigationBar: btm(context),
+        bottomNavigationBar: BottomNavigationBar(items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.abc), label: 'data'),
+          BottomNavigationBarItem(icon: Icon(Icons.abc), label: 'data'),
+          BottomNavigationBarItem(icon: Icon(Icons.abc), label: 'data'),
+
+        ],)
       ),
     );
   }
