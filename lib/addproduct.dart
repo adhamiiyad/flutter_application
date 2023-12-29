@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_application/main.dart';
@@ -30,17 +29,12 @@ class _AddProdFormState extends State<AddProdForm> {
   TextEditingController descriptionController = TextEditingController();
 
   final database = FirebaseDatabase.instance.ref();
+  // to store the picked image
   File? _image;
-  get data => null;
-  File? selectedImage = File('');
-
-  // Reference refRoot = FirebaseStorage.instance.ref();
-  // Reference imagess = refRoot.child('images');
-  // Reference imagetosave = refRoot.child('d');
 
   @override
   Widget build(BuildContext context) {
-    // final productRef = database.child('products');
+    //general validator
     validate(String? val) {
       if (val == null || val.isEmpty) {
         return 'Enter a valide value !!';
@@ -76,18 +70,18 @@ class _AddProdFormState extends State<AddProdForm> {
                 const SizedBox(
                   height: 20,
                 ),
+                //picked image container to show it
                 Container(
+                  // padding: EdgeInsets.all(2),
                   height: 200,
                   width: 200,
                   color: Colors.red,
-                  child: Center(
-                    child: _image == null
-                        ? const Text('no image selected')
-                        : Image.file(
-                            _image!,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
+                  child: _image == null
+                      ? const Center(child: Text('no image selected'))
+                      : Image.file(
+                          _image!,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 const SizedBox(
                   height: 10,
@@ -164,14 +158,12 @@ class _AddProdFormState extends State<AddProdForm> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       try {
-                        var imageName =
-                            DateTime.now().millisecondsSinceEpoch.toString();
-                        var storageRef = FirebaseStorage.instance
-                            .ref()
-                            .child('driver_images/$imageName.jpeg');
-                        var uploadTask = storageRef.putFile(_image!);
-                        var downloadUrl =
-                            await (await uploadTask).ref.getDownloadURL();
+                        var currentDate = DateTime.now();
+                        Reference reference =
+                            FirebaseStorage.instance.ref('images/$currentDate');
+                        final TaskSnapshot snapshot =
+                            await reference.putFile(_image!);
+                        final downloadUrl = await snapshot.ref.getDownloadURL();
 
                         await database.child('products').push().set({
                           'productName': nameController.text,
@@ -180,7 +172,14 @@ class _AddProdFormState extends State<AddProdForm> {
                           'image': downloadUrl.toString(),
                         });
                       } catch (e) {
-                        print('Error $e');
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content:
+                              Text('soryy you got an error, please try again.'),
+                          duration: Duration(
+                            seconds: 3,
+                          ),
+                        ));
                       }
                     }
                   },

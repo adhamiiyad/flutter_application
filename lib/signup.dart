@@ -1,7 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/main.dart';
-import 'package:flutter_application/signupnext.dart';
 
 class Signup extends StatelessWidget {
   const Signup({super.key});
@@ -37,7 +36,7 @@ class _SignupFormState extends State<SignupForm> {
 
   @override
   Widget build(BuildContext context) {
-    final userRef = database.child('user');
+    // final userRef = database.child('user');
 
     validate1(String? val) {
       if (val == null || val.isEmpty) {
@@ -61,11 +60,6 @@ class _SignupFormState extends State<SignupForm> {
       appBar: AppBar(
         title: const Text('Sign-up'),
         backgroundColor: appBarColor,
-        // leading: BackButton(
-        //   onPressed: () {
-        //     backButton(context);
-        //   },
-        // ),
       ),
       body: Center(
         child: Form(
@@ -134,7 +128,9 @@ class _SignupFormState extends State<SignupForm> {
               ),
               CheckboxListTile(
                 controlAffinity: ListTileControlAffinity.leading,
-                title: const Text('Agree with terms & ...'),
+                title: const Text(
+                  'Agree with terms & ...',
+                ),
                 value: policyController,
                 onChanged: (value) {
                   setState(() {
@@ -144,36 +140,16 @@ class _SignupFormState extends State<SignupForm> {
               ),
               ElevatedButton(
                 onPressed: () async {
+                  policyController == false
+                      ? ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('you have to agree with our terms')))
+                      : null;
+
                   if (_formKey.currentState!.validate() &&
                       policyController == true) {
                     _formKey.currentState!.save();
-                    // userRef.set({
-                    //   'name': nameController.text,
-                    //   'email': emailController.text,
-                    //   'password': passController.text,
-                    // }).then((_) => ScaffoldMessenger.of(context).showSnackBar(
-                    //   const SnackBar(
-                    //     content: Text('Done'),
-                    //     duration: Duration(
-                    //       seconds: 2,
-                    //     ),
-                    //   ))
-                    // ,
-                    // ).catchError((onError) => print('you got an error $onError'));
-                    // try {
-                    //   //to enter a single value.
-                    //   // --> //await userRef.child('name').set(nameController.text);
-                    //   // await userRef.update({'name': nameController.text});
-                    //   // await database.set({'user/name': nameController.text}); // access as path!
-                    //   await userRef.set({
-                    //     'name': nameController.text,
-                    //     'email': emailController.text,
-                    //     'password': passController.text,
-                    //   });
-                    // } catch (e) {
-                    //   print('you got an Error $e');
-                    // }
-
                     try {
                       await database.child('user').push().set({
                         'name': nameController.text,
@@ -181,14 +157,15 @@ class _SignupFormState extends State<SignupForm> {
                         'password': passController.text,
                       });
                     } catch (e) {
-                      print('you got an Error $e');
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content:
+                            Text('soryy you got an error, please try again.'),
+                        duration: Duration(
+                          seconds: 3,
+                        ),
+                      ));
                     }
-
                     clearAll();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const SignupNext()));
                   }
                 },
                 child: const Text('Sign-up'),
