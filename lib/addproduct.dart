@@ -1,10 +1,11 @@
 import 'dart:io';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_application/main.dart';
 import 'package:flutter_application/userprofile.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AddProduct extends StatelessWidget {
   const AddProduct({super.key});
@@ -29,7 +30,13 @@ class _AddProdFormState extends State<AddProdForm> {
   TextEditingController descriptionController = TextEditingController();
 
   final database = FirebaseDatabase.instance.ref();
+  File? _image;
+  get data => null;
   File? selectedImage = File('');
+
+  // Reference refRoot = FirebaseStorage.instance.ref();
+  // Reference imagess = refRoot.child('images');
+  // Reference imagetosave = refRoot.child('d');
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +59,8 @@ class _AddProdFormState extends State<AddProdForm> {
           backgroundColor: appBarColor,
           leading: BackButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const UserProfile()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const UserProfile()));
             },
           ),
         ),
@@ -72,9 +80,13 @@ class _AddProdFormState extends State<AddProdForm> {
                   height: 200,
                   width: 200,
                   color: Colors.red,
-                  child: Image.file(
-                    selectedImage!,
-                    fit: BoxFit.cover,
+                  child: Center(
+                    child: _image == null
+                        ? const Text('no image selected')
+                        : Image.file(
+                            _image!,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                 ),
                 const SizedBox(
@@ -105,9 +117,7 @@ class _AddProdFormState extends State<AddProdForm> {
                   controller: priceController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    labelText: 'Price',
-                    hintText: 'product price in \$'
-                  ),
+                      labelText: 'Price', hintText: 'product price in \$'),
                   validator: validate,
                   onSaved: (newValue) {
                     priceController.text = newValue.toString();
@@ -154,11 +164,20 @@ class _AddProdFormState extends State<AddProdForm> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       try {
+                        var imageName =
+                            DateTime.now().millisecondsSinceEpoch.toString();
+                        var storageRef = FirebaseStorage.instance
+                            .ref()
+                            .child('driver_images/$imageName.jpeg');
+                        var uploadTask = storageRef.putFile(_image!);
+                        var downloadUrl =
+                            await (await uploadTask).ref.getDownloadURL();
+
                         await database.child('products').push().set({
                           'productName': nameController.text,
                           'productPrice': priceController.text,
                           'description': descriptionController.text,
-                          // 'image': selectedImage!.parent
+                          'image': downloadUrl.toString(),
                         });
                       } catch (e) {
                         print('Error $e');
@@ -187,9 +206,9 @@ class _AddProdFormState extends State<AddProdForm> {
 
   // get image from gellary method
   Future pickIwmage() async {
-  final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-  setState(() {
-    selectedImage = File(image!.path);
-  });
-}
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {
+      _image = File(image!.path);
+    });
+  }
 }
