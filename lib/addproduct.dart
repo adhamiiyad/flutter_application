@@ -154,33 +154,53 @@ class _AddProdFormState extends State<AddProdForm> {
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.purple),
                   ),
-                  onPressed: () async {
+                  onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      try {
-                        var currentDate = DateTime.now();
-                        Reference reference =
-                            FirebaseStorage.instance.ref('images/$currentDate');
-                        final TaskSnapshot snapshot =
-                            await reference.putFile(_image!);
-                        final downloadUrl = await snapshot.ref.getDownloadURL();
+                      showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: const Text('Add Product'),
+                          content: const Text('Are you sure?'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'Cancel'),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                _formKey.currentState!.save();
+                                try {
+                                  var currentDate = DateTime.now();
+                                  Reference reference = FirebaseStorage.instance
+                                      .ref('images/$currentDate');
+                                  final TaskSnapshot snapshot =
+                                      await reference.putFile(_image!);
+                                  final downloadUrl =
+                                      await snapshot.ref.getDownloadURL();
 
-                        await database.child('products').push().set({
-                          'productName': nameController.text,
-                          'productPrice': priceController.text,
-                          'description': descriptionController.text,
-                          'image': downloadUrl.toString(),
-                        });
-                      } catch (e) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content:
-                              Text('soryy you got an error, please try again.'),
-                          duration: Duration(
-                            seconds: 3,
-                          ),
-                        ));
-                      }
+                                  await database.child('products/${nameController.text}').set({
+                                    'productName': nameController.text,
+                                    'productPrice': priceController.text,
+                                    'description': descriptionController.text,
+                                    'image': downloadUrl.toString(),
+                                  });
+                                  Navigator.pop(context, 'Cancel');
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text(
+                                        'soryy you got an error, please try again.'),
+                                    duration: Duration(
+                                      seconds: 3,
+                                    ),
+                                  ));
+                                }
+                              },
+                              child: const Text('Add'),
+                            ),
+                          ],
+                        ),
+                      );
                     }
                   },
                   child: const Text(

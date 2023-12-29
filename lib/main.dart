@@ -1,11 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/about.dart';
 import 'package:flutter_application/addproduct.dart';
 import 'package:flutter_application/login.dart';
 import 'signup.dart';
-
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +69,18 @@ class _MainPageState extends State<MainPage> {
             );
           }),
       bottomNavigationBar: btm(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final ref = FirebaseDatabase.instance.ref();
+          final snapshot = await ref.child('user').get();
+          if (snapshot.exists) {
+            print(snapshot.value);
+          } else {
+            print('No data available.');
+          }
+        },
+        child: Icon(Icons.abc),
+      ),
     );
   }
 }
