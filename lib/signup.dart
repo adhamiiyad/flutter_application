@@ -151,7 +151,7 @@ class _SignupFormState extends State<SignupForm> {
                       policyController == true) {
                     _formKey.currentState!.save();
                     try {
-                      await database.child('user/${emailController.text}').set({
+                      await database.child('user/xxx').set({
                         'name': nameController.text,
                         'email': emailController.text,
                         'password': passController.text,

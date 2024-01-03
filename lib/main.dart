@@ -1,8 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/about.dart';
 import 'package:flutter_application/addproduct.dart';
+import 'package:flutter_application/homepage.dart';
 import 'package:flutter_application/login.dart';
 import 'signup.dart';
 
@@ -23,65 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: MainPage(),
-    );
-  }
-}
-
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
-
-  @override
-  State<MainPage> createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: drw(context),
-      appBar: AppBar(
-        title: const Text('mp'),
-        backgroundColor: appBarColor,
-      ),
-      body: GridView.builder(
-          padding: const EdgeInsets.all(15),
-          itemCount: 10,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2),
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.all(10),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                height: 20,
-                width: 20,
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 71, 44, 43),
-                ),
-              ),
-            );
-          }),
-      bottomNavigationBar: btm(context),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final ref = FirebaseDatabase.instance.ref();
-          final snapshot = await ref.child('user').get();
-          if (snapshot.exists) {
-            print(snapshot.value);
-          } else {
-            print('No data available.');
-          }
-        },
-        child: Icon(Icons.abc),
-      ),
-    );
+    return HomePage();
   }
 }
 

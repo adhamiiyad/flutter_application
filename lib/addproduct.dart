@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_application/main.dart';
@@ -27,10 +28,13 @@ class _AddProdFormState extends State<AddProdForm> {
   TextEditingController nameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
 
   final database = FirebaseDatabase.instance.ref();
   // to store the picked image
   File? _image;
+
+  List categoryList = ['clothes', 'electronics', 'home'];
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +141,21 @@ class _AddProdFormState extends State<AddProdForm> {
                 const SizedBox(
                   height: 20,
                 ),
+                const Text(
+                  'choose category',
+                  style: style1,
+                ),
+                DropdownButton(
+                  onChanged: (vlue) {
+                    setState(() {
+                      categoryController.text = vlue.toString();
+                    });
+                  },
+                  items: categoryList
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
+                  value: categoryController.text,
+                ),
                 RawMaterialButton(
                   fillColor: Colors.red,
                   onPressed: () {
@@ -178,7 +197,9 @@ class _AddProdFormState extends State<AddProdForm> {
                                   final downloadUrl =
                                       await snapshot.ref.getDownloadURL();
 
-                                  await database.child('products/${nameController.text}').set({
+                                  await database
+                                      .child('products/${categoryController.text}/${nameController.text}')
+                                      .set({
                                     'productName': nameController.text,
                                     'productPrice': priceController.text,
                                     'description': descriptionController.text,
