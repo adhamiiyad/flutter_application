@@ -67,7 +67,9 @@ class _HomePageIState extends State<HomePageI> {
       //     }),
 
 
-      body: StreamBuilder(
+      body: Container(),
+      /*
+      StreamBuilder(
           stream: FirebaseDatabase.instance
               .ref()
               .child("products")
@@ -154,6 +156,7 @@ class _HomePageIState extends State<HomePageI> {
               return CircularProgressIndicator();
             }
           }),
+      */
 
       bottomNavigationBar: btm(context),
       floatingActionButton: FloatingActionButton(
