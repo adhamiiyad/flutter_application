@@ -24,6 +24,11 @@ class HomePageI extends StatefulWidget {
 
 class _HomePageIState extends State<HomePageI> {
     final ref = FirebaseDatabase.instance.ref('products');
+    late final stream = FirebaseDatabase.instance.ref('products/electronics/').onValue;
+
+    void getProduct() async{
+
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +38,7 @@ class _HomePageIState extends State<HomePageI> {
         title: const Text('mp'),
         backgroundColor: appBarColor,
       ),
+
       // body: Column(
       //   children: [
       //     Expanded(
@@ -67,7 +73,41 @@ class _HomePageIState extends State<HomePageI> {
       //     }),
 
 
-      body: Container(),
+      body: StreamBuilder(
+            stream: stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final data = snapshot.data?.snapshot.value as Map?;
+                if (data == null) {
+                  return Text('No data');
+                }
+                final description = data['description'];
+                final productNmae = data['productName'];
+                final productPrice = data['productPrice'];
+                // final pressure = data['pressure'];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('dht11: $description'),
+                    Text('gas: $productNmae'),
+                    Text('humidity: $productPrice'),
+                    // Text('pressure: $pressure'),
+                  ],
+                );
+              }
+              if (snapshot.hasError) {
+                print(snapshot.error.toString());
+                return Text(snapshot.error.toString());
+              }
+
+              return Text('....');
+            },
+          ),
+        
+      
+    
+  
+
       /*
       StreamBuilder(
           stream: FirebaseDatabase.instance

@@ -30,12 +30,14 @@ class _AddProdFormState extends State<AddProdForm> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
 
+  int numberOfItems = 0;
+
   final database = FirebaseDatabase.instance.ref();
   // to store the picked image
   File? _image;
 
   List categoryList = ['clothes', 'electronics', 'home'];
-
+  String xx = 'clothes';
   @override
   Widget build(BuildContext context) {
     //general validator
@@ -145,16 +147,17 @@ class _AddProdFormState extends State<AddProdForm> {
                   'choose category',
                   style: style1,
                 ),
+
                 DropdownButton(
+                  // value: xx,
+                  items: categoryList
+                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                      .toList(),
                   onChanged: (vlue) {
                     setState(() {
                       categoryController.text = vlue.toString();
                     });
                   },
-                  items: categoryList
-                      .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                      .toList(),
-                  value: categoryController.text,
                 ),
                 RawMaterialButton(
                   fillColor: Colors.red,
@@ -198,13 +201,15 @@ class _AddProdFormState extends State<AddProdForm> {
                                       await snapshot.ref.getDownloadURL();
 
                                   await database
-                                      .child('products/${categoryController.text}/${nameController.text}')
+                                      .child(
+                                          'products/${categoryController.text}/$numberOfItems')
                                       .set({
                                     'productName': nameController.text,
                                     'productPrice': priceController.text,
                                     'description': descriptionController.text,
                                     'image': downloadUrl.toString(),
                                   });
+                                  numberOfItems++;
                                   Navigator.pop(context, 'Cancel');
                                 } catch (e) {
                                   ScaffoldMessenger.of(context)
